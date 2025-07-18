@@ -394,6 +394,44 @@ class Database {
   close() {
     this.db.close();
   }
+
+  /**
+   * Fetch a user (and designer details if present) by email without checking the password.
+   * @param {string} email
+   * @returns {Promise<object|null>} The user object with optional `designer` sub-object or null if not found.
+   */
+  async getUserByEmail(email) {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT * FROM users WHERE email = ?',
+        [email],
+        (err, user) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          if (!user) {
+            resolve(null);
+            return;
+          }
+
+          // If the user is a designer, attach designer details and specialties
+          if (user.role === 'designer') {
+            this.getDesignerDetails(user.id, (err, designer) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              resolve({ ...user, designer });
+            });
+          } else {
+            resolve(user);
+          }
+        }
+      );
+    });
+  }
 }
 
 module.exports = Database;

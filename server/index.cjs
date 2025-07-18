@@ -130,12 +130,14 @@ app.post('/api/auth/register', async (req, res) => {
 // Get current user profile
 app.get('/api/auth/profile', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role === 'designer') {
-      const user = await db.authenticateUser(req.user.email, 'skip_password_check');
-      res.json({ success: true, user });
-    } else {
-      res.json({ success: true, user: req.user });
+    // Always fetch the latest user data from the database so that profile information is up-to-date.
+    const user = await db.getUserByEmail(req.user.email);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    res.json({ success: true, user });
   } catch (error) {
     console.error('Profile fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
