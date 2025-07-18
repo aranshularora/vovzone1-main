@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Building, Phone, Globe, Eye, EyeOff, CheckCircle, Clock } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Mail, Lock, User, Building, Phone } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
 import Logo from './Logo';
 
 const RegisterForm: React.FC = () => {
@@ -106,7 +106,7 @@ const RegisterForm: React.FC = () => {
       } else {
         setError(result.message);
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred during registration');
     } finally {
       setIsLoading(false);
@@ -118,7 +118,7 @@ const RegisterForm: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="mb-6">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            {/* CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" /> */}
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted!</h1>
           </div>
           
@@ -128,7 +128,7 @@ const RegisterForm: React.FC = () => {
 
           <div className="space-y-4">
             <div className="flex items-center space-x-3 text-sm text-gray-600">
-              <Clock className="w-4 h-4" />
+              {/* Clock className="w-4 h-4" /> */}
               <span>Review process: 2-3 business days</span>
             </div>
             <div className="flex items-center space-x-3 text-sm text-gray-600">
@@ -183,7 +183,7 @@ const RegisterForm: React.FC = () => {
         {/* Application Notice */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-start space-x-3">
-            <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
+            {/* Clock className="w-5 h-5 text-blue-600 mt-0.5" /> */}
             <div>
               <h3 className="font-medium text-blue-900">Application Review Process</h3>
               <p className="text-blue-700 text-sm mt-1">

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Database, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 const DatabaseStatus: React.FC = () => {
   const [status, setStatus] = useState<{ connected: boolean; message: string; loading: boolean }>({
@@ -11,7 +11,7 @@ const DatabaseStatus: React.FC = () => {
 
   const { testDatabaseConnection } = useAuth();
 
-  const checkConnection = async () => {
+  const checkConnection = useCallback(async () => {
     setStatus(prev => ({ ...prev, loading: true }));
     try {
       const result = await testDatabaseConnection();
@@ -20,18 +20,18 @@ const DatabaseStatus: React.FC = () => {
         message: result.message,
         loading: false
       });
-    } catch (error) {
+    } catch {
       setStatus({
         connected: false,
         message: 'Failed to test connection',
         loading: false
       });
     }
-  };
+  }, [testDatabaseConnection]);
 
   useEffect(() => {
     checkConnection();
-  }, []);
+  }, [checkConnection]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">

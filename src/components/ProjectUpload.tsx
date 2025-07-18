@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, X, Plus, Camera, MapPin, Tag, Building, Home, ChefHat, Bath, Bed, TreePine, Coffee, ShoppingBag, Briefcase } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Project } from '../types';
 
 interface ProjectUploadProps {
@@ -184,7 +184,7 @@ const ProjectUpload: React.FC<ProjectUploadProps> = ({ isOpen, onClose, onProjec
       
       onClose();
       alert('Project uploaded successfully!');
-    } catch (error) {
+    } catch {
       alert('Error uploading project. Please try again.');
     } finally {
       setIsUploading(false);

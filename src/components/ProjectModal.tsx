@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Share2, MapPin, Calendar, Mail, Phone, Globe, ChevronLeft, ChevronRight, User, Building, Star, Shield } from 'lucide-react';
+import { X, Share2, MapPin, Calendar, Mail, Phone, ChevronLeft, ChevronRight, User, Building } from 'lucide-react';
 import { Project, Designer } from '../types';
 
 interface ProjectModalProps {
@@ -264,7 +264,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, designer, isOpen, 
                       </h3>
                       {designer.verified && (
                         <div className="flex items-center space-x-1">
-                          <Shield className="w-4 h-4 text-green-600" />
+                          {/* <Shield className="w-4 h-4 text-green-600" /> */}
                           <span className="text-xs text-green-600 font-medium">Verified</span>
                         </div>
                       )}
@@ -277,7 +277,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, designer, isOpen, 
                     )}
                     {designer.rating && (
                       <div className="flex items-center space-x-1 mt-1">
-                        <Star className="w-4 h-4 text-amber-500 fill-current" />
+                        {/* <Star className="w-4 h-4 text-amber-500 fill-current" /> */}
                         <span className="text-sm text-gray-600">{designer.rating} rating</span>
                       </div>
                     )}
@@ -312,7 +312,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, designer, isOpen, 
                 {/* Contact Notice - No Direct Contact Info */}
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
                   <p className="text-amber-800 text-sm">
-                    <Shield className="w-4 h-4 inline mr-1" />
+                    {/* <Shield className="w-4 h-4 inline mr-1" /> */}
                     Contact details are shared only after you submit an inquiry to protect designer privacy.
                   </p>
                 </div>

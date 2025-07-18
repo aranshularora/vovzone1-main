@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { User, Building, Phone, Globe, Mail, Camera, Save, X } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { User, Building, Phone, Mail } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
 
 interface ProfileUpdateProps {
   isOpen: boolean;
@@ -59,7 +59,7 @@ const ProfileUpdate: React.FC<ProfileUpdateProps> = ({ isOpen, onClose, onProfil
       } else {
         setError('Failed to update profile. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred while updating your profile.');
     } finally {
       setIsUpdating(false);

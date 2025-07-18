@@ -68,7 +68,7 @@ export interface RegisterResponse {
   applicationId?: string;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -87,8 +87,11 @@ class ApiService {
       localStorage.setItem('currentUser', JSON.stringify(user));
       
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Login failed');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error || 'Login failed');
+      }
+      throw new Error('Login failed');
     }
   }
 
@@ -96,15 +99,18 @@ class ApiService {
     try {
       const response = await api.post('/auth/register', userData);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Registration failed');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error || 'Registration failed');
+      }
+      throw new Error('Registration failed');
     }
   }
 
   async logout(): Promise<void> {
     try {
       await api.post('/auth/logout');
-    } catch (error) {
+    } catch {
       // Continue with logout even if API call fails
       console.warn('Logout API call failed, proceeding with local logout');
     } finally {
@@ -118,8 +124,11 @@ class ApiService {
     try {
       const response = await api.get('/auth/profile');
       return response.data.user;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch user profile');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error || 'Failed to fetch user profile');
+      }
+      throw new Error('Failed to fetch user profile');
     }
   }
 
@@ -128,34 +137,46 @@ class ApiService {
     try {
       const response = await api.get('/admin/applications/pending');
       return response.data.applications;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch pending applications');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error || 'Failed to fetch pending applications');
+      }
+      throw new Error('Failed to fetch pending applications');
     }
   }
 
   async approveDesigner(userId: string): Promise<void> {
     try {
       await api.post(`/admin/applications/${userId}/approve`);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to approve designer');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error || 'Failed to approve designer');
+      }
+      throw new Error('Failed to approve designer');
     }
   }
 
   async rejectDesigner(userId: string): Promise<void> {
     try {
       await api.post(`/admin/applications/${userId}/reject`);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to reject designer');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error || 'Failed to reject designer');
+      }
+      throw new Error('Failed to reject designer');
     }
   }
 
   // Designer methods
-  async getDesignerDashboard(): Promise<any> {
+  async getDesignerDashboard(): Promise<unknown> {
     try {
       const response = await api.get('/designer/dashboard');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch dashboard data');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.error || 'Failed to fetch dashboard data');
+      }
+      throw new Error('Failed to fetch dashboard data');
     }
   }
 
@@ -164,7 +185,7 @@ class ApiService {
     try {
       const response = await api.get('/health');
       return response.data.status === 'ok';
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -180,7 +201,7 @@ class ApiService {
     try {
       const userStr = localStorage.getItem('currentUser');
       return userStr ? JSON.parse(userStr) : null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -197,7 +218,7 @@ class ApiService {
         connected: isHealthy,
         message: isHealthy ? 'Database connected successfully' : 'Database connection failed'
       };
-    } catch (error) {
+    } catch {
       return {
         connected: false,
         message: 'Failed to connect to database server'

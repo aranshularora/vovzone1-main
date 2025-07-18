@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CheckCircle, XCircle, Clock, Eye, Mail, Phone, Building, Calendar, Award, Star } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Users, CheckCircle, XCircle, Clock, Eye, Mail, Phone, Building, Calendar } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
 import { User } from '../types';
 import { apiService } from '../services/api';
 import DatabaseStatus from './DatabaseStatus';
@@ -105,12 +105,12 @@ const AdminDashboard: React.FC = () => {
             )}
             <div className="flex items-center space-x-2">
               <Calendar className="w-4 h-4" />
-              <span>Applied: {formatDate(application.appliedAt!)}</span>
+              <span>Applied: {application.appliedAt ? formatDate(application.appliedAt) : 'N/A'}</span>
             </div>
-            {application.designer?.experience && (
+            {application.designer?.specialties && application.designer.specialties.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Award className="w-4 h-4" />
-                <span>{application.designer.experience} years experience</span>
+                <span>{application.designer.experience ?? 0} years experience</span>
               </div>
             )}
           </div>
@@ -128,9 +128,9 @@ const AdminDashboard: React.FC = () => {
                 {specialty}
               </span>
             ))}
-            {application.designer?.specialties.length! > 3 && (
+            {application.designer?.specialties && application.designer.specialties.length > 3 && (
               <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                +{application.designer?.specialties.length! - 3} more
+                +{application.designer.specialties.length - 3} more
               </span>
             )}
           </div>

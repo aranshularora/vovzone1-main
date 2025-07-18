@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '../types';
 import { apiService } from '../services/api';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
-  register: (userData: any) => Promise<{ success: boolean; message: string }>;
+  register: (userData: Omit<User, 'id' | 'role' | 'status' | 'appliedAt' | 'approvedAt' | 'rejectedAt' | 'designer'> & { password: string; confirmPassword?: string; specialties: string[] }) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
-  updateProfile: (data: any) => Promise<boolean>;
+  updateProfile: (data: Partial<User> & { specialties?: string[] }) => Promise<boolean>;
   approveDesigner: (designerId: string) => Promise<boolean>;
   rejectDesigner: (designerId: string) => Promise<boolean>;
   testDatabaseConnection: () => Promise<{ connected: boolean; message: string }>;
@@ -14,13 +14,7 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export { AuthContext };
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -88,12 +82,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (userData: any): Promise<{ success: boolean; message: string }> => {
+  const register = async (userData: Omit<User, 'id' | 'role' | 'status' | 'appliedAt' | 'approvedAt' | 'rejectedAt' | 'designer'> & { password: string; confirmPassword?: string; specialties: string[] }): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await apiService.register(userData);
       return { success: response.success, message: response.message };
-    } catch (error: any) {
-      return { success: false, message: error.message || 'Registration failed. Please try again.' };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return { success: false, message: error.message || 'Registration failed. Please try again.' };
+      }
+      return { success: false, message: 'Registration failed. Please try again.' };
     }
   };
 
@@ -126,7 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  const updateProfile = async (data: any): Promise<boolean> => {
+  const updateProfile = async (data: Partial<User> & { specialties?: string[] }): Promise<boolean> => {
     try {
       if (!authState.user || authState.user.role !== 'designer') return false;
 
@@ -160,7 +157,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user: updatedUser,
       }));
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   };
