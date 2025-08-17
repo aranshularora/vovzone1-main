@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthState } from '../types';
+import { User, AuthState, ProfileUpdateData } from '../types';
 import { apiService } from '../services/api';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: any) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
-  updateProfile: (data: any) => Promise<boolean>;
+  updateProfile: (data: ProfileUpdateData) => Promise<boolean>;
   approveDesigner: (designerId: string) => Promise<boolean>;
   rejectDesigner: (designerId: string) => Promise<boolean>;
   testDatabaseConnection: () => Promise<{ connected: boolean; message: string }>;
@@ -126,41 +126,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  const updateProfile = async (data: any): Promise<boolean> => {
+  const updateProfile = async (data: ProfileUpdateData): Promise<boolean> => {
     try {
-      if (!authState.user || authState.user.role !== 'designer') return false;
-
-      const updatedUser = {
-        ...authState.user,
-        name: data.name || authState.user.name,
-        email: data.email || authState.user.email,
-        designer: authState.user.designer ? {
-          ...authState.user.designer,
-          name: data.name || authState.user.designer.name,
-          email: data.email || authState.user.designer.email,
-          company: data.company || authState.user.designer.company,
-          phone: data.phone || authState.user.designer.phone,
-          website: data.website || authState.user.designer.website,
-          bio: data.bio || authState.user.designer.bio,
-          specialties: data.specialties || authState.user.designer.specialties,
-        } : undefined,
-      };
-
-      // Update in approved designers list
-      const approvedDesigners = JSON.parse(localStorage.getItem('approvedDesigners') || '[]');
-      const userIndex = approvedDesigners.findIndex((u: User) => u.id === updatedUser.id);
-      if (userIndex !== -1) {
-        approvedDesigners[userIndex] = updatedUser;
-        localStorage.setItem('approvedDesigners', JSON.stringify(approvedDesigners));
+      if (!authState.user) {
+        console.error('Cannot update profile: no user is authenticated.');
+        return false;
       }
 
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      const updatedUser = await apiService.updateUserProfile(data);
+
+      // Update auth state and local storage with the confirmed data from the server
       setAuthState(prev => ({
         ...prev,
         user: updatedUser,
       }));
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
       return true;
     } catch (error) {
+      console.error('Profile update failed:', error);
       return false;
     }
   };
