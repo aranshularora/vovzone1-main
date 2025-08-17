@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, ProfileUpdateData } from '../types';
+import { User } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -146,15 +146,6 @@ class ApiService {
       await api.post(`/admin/applications/${userId}/reject`);
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Failed to reject designer');
-    }
-  }
-
-  async updateUserProfile(profileData: ProfileUpdateData): Promise<User> {
-    try {
-      const response = await api.put<{ user: User }>('/designer/profile', profileData);
-      return response.data.user;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to update profile');
     }
   }
 
