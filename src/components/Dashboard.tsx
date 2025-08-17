@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { User, Upload, Settings, BarChart3, Heart, Eye, Plus, Edit, Trash2, Camera, Star, TrendingUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { mockProjects, mockDesigners } from '../data/mockData';
 import { Project } from '../types';
 import ProjectUpload from './ProjectUpload';
 import ProfileUpdate from './ProfileUpdate';
@@ -21,21 +20,7 @@ const Dashboard: React.FC = () => {
     completedProjects: 0
   });
 
-  useEffect(() => {
-    if (user?.designer) {
-      loadUserProjects();
-      calculatePortfolioStats();
-    }
-  }, [user?.designer?.id]);
-
-  const loadUserProjects = () => {
-    // Load user's specific projects from localStorage
-    const allStoredProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
-    const userSpecificProjects = allStoredProjects.filter((p: Project) => p.designerId === user?.designer?.id);
-    setUserProjects(userSpecificProjects);
-  };
-
-  const calculatePortfolioStats = () => {
+  const calculatePortfolioStats = useCallback(() => {
     if (!user?.designer) return;
 
     // Calculate stats based on user's projects and profile
@@ -50,7 +35,21 @@ const Dashboard: React.FC = () => {
       avgRating: rating,
       completedProjects: projects
     });
-  };
+  }, [user?.designer, userProjects.length]);
+
+  const loadUserProjects = useCallback(() => {
+    // Load user's specific projects from localStorage
+    const allStoredProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
+    const userSpecificProjects = allStoredProjects.filter((p: Project) => p.designerId === user?.designer?.id);
+    setUserProjects(userSpecificProjects);
+  }, [user?.designer?.id]);
+
+  useEffect(() => {
+    if (user?.designer) {
+      loadUserProjects();
+      calculatePortfolioStats();
+    }
+  }, [user?.designer, calculatePortfolioStats, loadUserProjects]);
 
   const handleProjectCreated = (newProject: Project) => {
     const projectWithDesigner = {

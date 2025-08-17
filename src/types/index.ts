@@ -71,6 +71,17 @@ export interface ProfileUpdateData {
   specialties?: string[];
 }
 
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  company?: string;
+  phone?: string;
+  website?: string;
+  bio?: string;
+  specialties?: string[];
+}
+
 export interface DatabaseSchema {
   users: {
     [userId: string]: User;

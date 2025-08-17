@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Eye, Heart, Users, Calendar, ArrowUp, ArrowDown, X } from 'lucide-react';
+import { BarChart3, TrendingUp, Eye, Heart, Users, ArrowUp, ArrowDown, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AnalyticsProps {
@@ -32,7 +32,7 @@ interface AnalyticsData {
 }
 
 const Analytics: React.FC<AnalyticsProps> = ({ isOpen, onClose }) => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [timeRange, setTimeRange] = useState('6months');
 
@@ -221,7 +221,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isOpen, onClose }) => {
                 Monthly Trends
               </h3>
               <div className="space-y-4">
-                {analyticsData.monthlyData.map((data, index) => (
+                {analyticsData.monthlyData.map((data, _index) => (
                   <div key={data.month} className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-600 w-12">{data.month}</span>
                     <div className="flex-1 mx-4">
@@ -251,9 +251,9 @@ const Analytics: React.FC<AnalyticsProps> = ({ isOpen, onClose }) => {
                 Top Performing Projects
               </h3>
               <div className="space-y-4">
-                {analyticsData.topProjects.map((project, index) => (
+                {analyticsData.topProjects.map((project, _index) => (
                   <div key={project.id} className="flex items-center space-x-3">
-                    <span className="text-sm font-bold text-gray-400 w-4">#{index + 1}</span>
+                    <span className="text-sm font-bold text-gray-400 w-4">#{_index + 1}</span>
                     <img
                       src={project.image}
                       alt={project.title}

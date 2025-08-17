@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CheckCircle, XCircle, Clock, Eye, Mail, Phone, Building, Calendar, Award, Star } from 'lucide-react';
+import { Users, CheckCircle, XCircle, Clock, Eye, Mail, Phone, Building, Calendar, Award } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { User } from '../types';
 import { apiService } from '../services/api';
@@ -128,9 +128,9 @@ const AdminDashboard: React.FC = () => {
                 {specialty}
               </span>
             ))}
-            {application.designer?.specialties.length! > 3 && (
+            {(application.designer?.specialties?.length ?? 0) > 3 && (
               <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                +{application.designer?.specialties.length! - 3} more
+                +{(application.designer?.specialties?.length ?? 0) - 3} more
               </span>
             )}
           </div>

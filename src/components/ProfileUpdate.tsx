@@ -59,7 +59,7 @@ const ProfileUpdate: React.FC<ProfileUpdateProps> = ({ isOpen, onClose, onProfil
       } else {
         setError('Failed to update profile. Please try again.');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('An error occurred while updating your profile.');
     } finally {
       setIsUpdating(false);

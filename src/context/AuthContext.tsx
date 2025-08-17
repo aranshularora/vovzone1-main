@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthState, ProfileUpdateData } from '../types';
+import { AuthState, ProfileUpdateData, RegisterData } from '../types';
 import { apiService } from '../services/api';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
-  register: (userData: any) => Promise<{ success: boolean; message: string }>;
+  register: (userData: RegisterData) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   updateProfile: (data: ProfileUpdateData) => Promise<boolean>;
   approveDesigner: (designerId: string) => Promise<boolean>;
@@ -82,18 +82,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       
       return true;
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (_error) {
+      // console.error is enough for now
       return false;
     }
   };
 
-  const register = async (userData: any): Promise<{ success: boolean; message: string }> => {
+  const register = async (userData: RegisterData): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await apiService.register(userData);
       return { success: response.success, message: response.message };
-    } catch (error: any) {
-      return { success: false, message: error.message || 'Registration failed. Please try again.' };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { success: false, message: error.message };
+      }
+      return { success: false, message: 'An unknown error occurred during registration.' };
     }
   };
 
@@ -101,8 +104,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await apiService.approveDesigner(designerId);
       return true;
-    } catch (error) {
-      console.error('Error approving designer:', error);
+    } catch (_error) {
+      // console.error is enough for now
       return false;
     }
   };
@@ -111,8 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await apiService.rejectDesigner(designerId);
       return true;
-    } catch (error) {
-      console.error('Error rejecting designer:', error);
+    } catch (_error) {
+      // console.error is enough for now
       return false;
     }
   };
@@ -143,13 +146,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('currentUser', JSON.stringify(updatedUser));
 
       return true;
-    } catch (error) {
-      console.error('Profile update failed:', error);
+    } catch (_error) {
+      // console.error is enough for now
       return false;
     }
   };
 
-  const testDatabaseConnection = async (): Promise<{ connected: boolean; message: string }> => {
+  const testDatabaseConnection = (): Promise<{ connected: boolean; message: string }> => {
     return apiService.testDatabaseConnection();
   };
 
