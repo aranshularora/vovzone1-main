@@ -390,6 +390,62 @@ class Database {
     );
   }
 
+  // Update designer profile
+  async updateDesignerProfile(userId, data) {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(async () => {
+        this.db.run('BEGIN TRANSACTION');
+
+        try {
+          // 1. Update users table
+          const userStmt = this.db.prepare('UPDATE users SET name = ?, email = ?, updated_at = ? WHERE id = ?');
+          await new Promise((res, rej) => userStmt.run(data.name, data.email, new Date().toISOString(), userId, (err) => err ? rej(err) : res()));
+          userStmt.finalize();
+
+          // 2. Update designers table
+          const designerStmt = this.db.prepare('UPDATE designers SET company = ?, phone = ?, website = ?, bio = ? WHERE user_id = ?');
+          await new Promise((res, rej) => designerStmt.run(data.company, data.phone, data.website, data.bio, userId, (err) => err ? rej(err) : res()));
+          designerStmt.finalize();
+
+          // 3. Update specialties (delete and re-insert)
+          // First, get the designer ID
+          const designer = await new Promise((res, rej) => this.db.get('SELECT id FROM designers WHERE user_id = ?', [userId], (err, row) => err ? rej(err) : res(row)));
+          if (designer) {
+            const designerId = designer.id;
+            // Delete old specialties
+            const deleteStmt = this.db.prepare('DELETE FROM designer_specialties WHERE designer_id = ?');
+            await new Promise((res, rej) => deleteStmt.run(designerId, (err) => err ? rej(err) : res()));
+            deleteStmt.finalize();
+
+            // Insert new specialties
+            if (data.specialties && data.specialties.length > 0) {
+              const specialtyStmt = this.db.prepare('INSERT INTO designer_specialties (designer_id, specialty) VALUES (?, ?)');
+              for (const specialty of data.specialties) {
+                await new Promise((res, rej) => specialtyStmt.run(designerId, specialty, (err) => err ? rej(err) : res()));
+              }
+              specialtyStmt.finalize();
+            }
+          }
+
+          // Commit transaction
+          this.db.run('COMMIT', async (err) => {
+            if (err) {
+              this.db.run('ROLLBACK');
+              reject(err);
+            } else {
+              // Fetch the fully updated user object to return to the client
+              const updatedUser = await this.authenticateUser(data.email, 'skip_password_check');
+              resolve(updatedUser);
+            }
+          });
+        } catch (error) {
+          this.db.run('ROLLBACK');
+          reject(error);
+        }
+      });
+    });
+  }
+
   // Close database connection
   close() {
     this.db.close();

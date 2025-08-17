@@ -61,6 +61,16 @@ export interface AuthState {
   loading: boolean;
 }
 
+export interface ProfileUpdateData {
+  name: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  website?: string;
+  bio?: string;
+  specialties?: string[];
+}
+
 export interface DatabaseSchema {
   users: {
     [userId: string]: User;

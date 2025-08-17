@@ -218,6 +218,21 @@ app.get('/api/designer/dashboard', authenticateToken, (req, res) => {
   });
 });
 
+// Update designer profile
+app.put('/api/designer/profile', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'designer') {
+    return res.status(403).json({ error: 'Designer access required' });
+  }
+
+  try {
+    const updatedUser = await db.updateDesignerProfile(req.user.id, req.body);
+    res.json({ success: true, user: updatedUser, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
 // Serve React app for all other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
