@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AuthState, ProfileUpdateData, RegisterData } from '../types';
+import { User, AuthState } from '../types';
 import { apiService } from '../services/api';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
-  register: (userData: RegisterData) => Promise<{ success: boolean; message: string }>;
+  register: (userData: any) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
-  updateProfile: (data: ProfileUpdateData) => Promise<boolean>;
+  updateProfile: (data: any) => Promise<boolean>;
   approveDesigner: (designerId: string) => Promise<boolean>;
   rejectDesigner: (designerId: string) => Promise<boolean>;
   testDatabaseConnection: () => Promise<{ connected: boolean; message: string }>;
@@ -82,21 +82,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       
       return true;
-    } catch (_error) {
-      // console.error is enough for now
+    } catch (error) {
+      console.error('Login error:', error);
       return false;
     }
   };
 
-  const register = async (userData: RegisterData): Promise<{ success: boolean; message: string }> => {
+  const register = async (userData: any): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await apiService.register(userData);
       return { success: response.success, message: response.message };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { success: false, message: error.message };
-      }
-      return { success: false, message: 'An unknown error occurred during registration.' };
+    } catch (error: any) {
+      return { success: false, message: error.message || 'Registration failed. Please try again.' };
     }
   };
 
@@ -104,8 +101,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await apiService.approveDesigner(designerId);
       return true;
-    } catch (_error) {
-      // console.error is enough for now
+    } catch (error) {
+      console.error('Error approving designer:', error);
       return false;
     }
   };
@@ -114,8 +111,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await apiService.rejectDesigner(designerId);
       return true;
-    } catch (_error) {
-      // console.error is enough for now
+    } catch (error) {
+      console.error('Error rejecting designer:', error);
       return false;
     }
   };
@@ -129,30 +126,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  const updateProfile = async (data: ProfileUpdateData): Promise<boolean> => {
+  const updateProfile = async (data: any): Promise<boolean> => {
     try {
-      if (!authState.user) {
-        console.error('Cannot update profile: no user is authenticated.');
-        return false;
+      if (!authState.user || authState.user.role !== 'designer') return false;
+
+      const updatedUser = {
+        ...authState.user,
+        name: data.name || authState.user.name,
+        email: data.email || authState.user.email,
+        designer: authState.user.designer ? {
+          ...authState.user.designer,
+          name: data.name || authState.user.designer.name,
+          email: data.email || authState.user.designer.email,
+          company: data.company || authState.user.designer.company,
+          phone: data.phone || authState.user.designer.phone,
+          website: data.website || authState.user.designer.website,
+          bio: data.bio || authState.user.designer.bio,
+          specialties: data.specialties || authState.user.designer.specialties,
+        } : undefined,
+      };
+
+      // Update in approved designers list
+      const approvedDesigners = JSON.parse(localStorage.getItem('approvedDesigners') || '[]');
+      const userIndex = approvedDesigners.findIndex((u: User) => u.id === updatedUser.id);
+      if (userIndex !== -1) {
+        approvedDesigners[userIndex] = updatedUser;
+        localStorage.setItem('approvedDesigners', JSON.stringify(approvedDesigners));
       }
 
-      const updatedUser = await apiService.updateUserProfile(data);
-
-      // Update auth state and local storage with the confirmed data from the server
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
       setAuthState(prev => ({
         ...prev,
         user: updatedUser,
       }));
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
       return true;
-    } catch (_error) {
-      // console.error is enough for now
+    } catch (error) {
       return false;
     }
   };
 
-  const testDatabaseConnection = (): Promise<{ connected: boolean; message: string }> => {
+  const testDatabaseConnection = async (): Promise<{ connected: boolean; message: string }> => {
     return apiService.testDatabaseConnection();
   };
 

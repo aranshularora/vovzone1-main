@@ -184,7 +184,7 @@ const ProjectUpload: React.FC<ProjectUploadProps> = ({ isOpen, onClose, onProjec
       
       onClose();
       alert('Project uploaded successfully!');
-    } catch (_error) {
+    } catch (error) {
       alert('Error uploading project. Please try again.');
     } finally {
       setIsUploading(false);

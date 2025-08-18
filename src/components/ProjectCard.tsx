@@ -26,26 +26,28 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, designer, onClick })
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Image Container - Clean Pinterest Style */}
+      {/* Image Container - The skeleton is now part of this container */}
       <div className={`relative overflow-hidden ${cardHeight}`}>
+        {/* Skeleton loader for the image */}
         {!isLoaded && (
           <div className="absolute inset-0 bg-gray-200 animate-pulse" />
         )}
+
         <img
           src={project.images[0]}
           alt={project.title}
-          className={`w-full h-full object-cover transition-transform duration-500 ${
-            isHovered ? 'scale-105' : 'scale-100'
-          } ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`w-full h-full object-cover transition-opacity duration-500 ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
           onLoad={() => setIsLoaded(true)}
+          onError={() => setIsLoaded(true)} // Treat error as loaded to remove skeleton
         />
         
-        {/* Minimal overlay on hover */}
+        {/* Hover overlay content is always rendered, but its visibility is controlled by CSS */}
         <div className={`absolute inset-0 bg-black transition-all duration-300 ${
           isHovered ? 'bg-opacity-10' : 'bg-opacity-0'
         }`} />
         
-        {/* Image count indicator - minimal and clean */}
         {project.images.length > 1 && (
           <div className={`absolute top-3 right-3 px-2 py-1 bg-black bg-opacity-60 rounded-full transition-opacity duration-300 ${
             isHovered ? 'opacity-100' : 'opacity-0'
@@ -54,7 +56,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, designer, onClick })
           </div>
         )}
 
-        {/* Subtle hover overlay with minimal info */}
         <div className={`absolute inset-0 flex items-end transition-opacity duration-300 ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}>

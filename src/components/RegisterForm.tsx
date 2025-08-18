@@ -106,7 +106,7 @@ const RegisterForm: React.FC = () => {
       } else {
         setError(result.message);
       }
-    } catch (_err) {
+    } catch (err) {
       setError('An error occurred during registration');
     } finally {
       setIsLoading(false);

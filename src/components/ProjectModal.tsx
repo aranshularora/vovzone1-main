@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Share2, MapPin, Calendar, Mail, Phone, ChevronLeft, ChevronRight, User, Building, Star, Shield } from 'lucide-react';
+import { X, Share2, MapPin, Calendar, Mail, Phone, Globe, ChevronLeft, ChevronRight, User, Building, Star, Shield } from 'lucide-react';
 import { Project, Designer } from '../types';
 
 interface ProjectModalProps {

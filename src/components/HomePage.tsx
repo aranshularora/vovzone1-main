@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Filter, Grid, User, Mail, Bed, ChefHat, Bath, TreePine, Home, Building, Coffee, ShoppingBag, Briefcase } from 'lucide-react';
+import { Filter, Grid, LayoutGrid, User, Mail, Bed, ChefHat, Bath, TreePine, Home, Building, Coffee, ShoppingBag, Briefcase } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
 import { mockProjects, mockDesigners } from '../data/mockData';
